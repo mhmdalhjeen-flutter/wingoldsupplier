@@ -1,0 +1,36 @@
+import { formatOfferBadge } from '../utils/offerPricing';
+import { formatPriceWithUnit } from '../utils/currency';
+import '../styles/OfferPriceDisplay.css';
+
+/** Reads pricing from API SSOT — no local price calculation. */
+export default function OfferPriceDisplay({ offer, className = '' }) {
+  const pricing = offer?.pricing;
+  const oldPrice = pricing?.originalPrice;
+  const newPrice = pricing?.finalPrice;
+  const showCompare = pricing?.showCompare ?? false;
+  const badge = pricing?.badge || formatOfferBadge(offer);
+  const priceUnit = pricing?.priceUnit || offer?.priceUnit;
+  const currency = pricing?.currency || offer?.currency;
+
+  if (newPrice == null && !badge) return null;
+
+  const showTypeBadge = ['bogo', 'free_item', 'discount', 'fixed_discount'].includes(offer?.offerType);
+
+  return (
+    <div className={`offer-price-display ${className}`.trim()}>
+      {showCompare && oldPrice != null && (
+        <span className="offer-price-old" aria-label="السعر القديم">
+          {pricing?.displayOld || formatPriceWithUnit(oldPrice, currency, priceUnit)}
+        </span>
+      )}
+      {newPrice != null ? (
+        <span className="offer-price-new">{pricing?.displayNew || formatPriceWithUnit(newPrice, currency, priceUnit)}</span>
+      ) : (
+        <span className="offer-price-new">{badge}</span>
+      )}
+      {showTypeBadge && badge && (
+        <span className="offer-price-badge">{badge}</span>
+      )}
+    </div>
+  );
+}
